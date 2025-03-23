@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:front_end_ktpm2/services/auth_service.dart';
 
 class CartService {
-  static const String baseUrl = 'http://192.168.1.3:3000';
+  static const String baseUrl = 'http://localhost:3000';
   static const int timeoutSeconds = 10;
 
   // Lấy header với userId
@@ -60,7 +60,7 @@ class CartService {
       final headers = await _getHeaders();
       final response = await http
           .post(
-            Uri.parse('$baseUrl/add-to-cart'),
+            Uri.parse('$baseUrl/api/add-to-cart'),
             headers: headers,
             body: jsonEncode({'productId': productId, 'quantity': quantity}),
           )

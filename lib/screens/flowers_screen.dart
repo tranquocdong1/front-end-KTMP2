@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front_end_ktpm2/services/cart_service.dart';
 import 'package:front_end_ktpm2/services/flowers_service.dart';
 
 class FlowersScreen extends StatefulWidget {
@@ -49,14 +50,14 @@ class _FlowersScreenState extends State<FlowersScreen> {
 
   Future<void> addToCart(String productId) async {
     try {
-      final response = await FlowersService.addToCart(productId, 1);
+      final response = await CartService.addToCart(productId, 1);
       if (response['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể thêm vào giỏ hàng')),
+          SnackBar(content: Text('Đã thêm vào giỏ hàng')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Đã thêm vào giỏ hàng')),
+          SnackBar(content: Text('Không thể thêm vào giỏ hàng')),
         );
       }
     } catch (e) {

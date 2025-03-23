@@ -69,7 +69,7 @@ class FlowersService {
     try {
       final response = await http
           .post(
-            Uri.parse('$baseUrl/add-to-cart'), // Thay đổi endpoint này
+            Uri.parse('$baseUrl/api/add-to-cart'), // Thay đổi endpoint này
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'productId': productId, 'quantity': quantity}),
           )
