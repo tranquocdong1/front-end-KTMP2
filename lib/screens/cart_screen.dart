@@ -69,18 +69,52 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-  void updateQuantity(int index, int newQuantity) async {
+  Future<void> updateQuantity(int index, int newQuantity) async {
     if (newQuantity < 1 || index >= cartItems.length || index < 0) return;
 
-    setState(() {
-      cartItems[index]['quantity'] = newQuantity;
-      subtotal = cartItems.fold(0.0, (sum, item) {
-        final price =
-            double.tryParse(item['price']?.toString() ?? '0.0') ?? 0.0;
-        return sum + (price * (item['quantity'] ?? 1));
+    String? productId = cartItems[index]['productId']?.toString();
+    if (productId == null || productId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể cập nhật: ID sản phẩm không hợp lệ')),
+      );
+      return;
+    }
+
+    try {
+      // Cập nhật giao diện trước để cải thiện trải nghiệm người dùng
+      setState(() {
+        cartItems[index]['quantity'] = newQuantity;
+        subtotal = cartItems.fold(0.0, (sum, item) {
+          final price = double.tryParse(item['price']?.toString() ?? '0.0') ?? 0.0;
+          return sum + (price * (item['quantity'] ?? 1));
+        });
       });
-    });
-    // TODO: Gọi API để cập nhật quantity trên server nếu cần
+
+      // Gọi API để cập nhật số lượng trên server
+      final response = await CartService.updateCartQuantity(productId, newQuantity);
+      if (response['success'] == false) {
+        print('Lỗi khi cập nhật số lượng: ${response['message']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'])),
+        );
+        // Nếu lỗi, tải lại giỏ hàng từ server
+        await loadCart();
+        return;
+      }
+
+      // Cập nhật lại dữ liệu từ server
+      setState(() {
+        cartItems = response['items'] ?? [];
+        subtotal = double.tryParse(response['subtotal'].toString()) ?? 0.0;
+      });
+    } catch (e) {
+      print('Exception khi cập nhật số lượng: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi cập nhật số lượng')),
+      );
+      // Nếu lỗi, tải lại giỏ hàng từ server
+      await loadCart();
+    }
   }
 
   @override
@@ -97,8 +131,7 @@ class _CartScreenState extends State<CartScreen> {
                     itemBuilder: (context, index) {
                       final item = cartItems[index];
                       return Card(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         child: ListTile(
                           leading: Image.network(
                             item['image'] ?? 'https://via.placeholder.com/150',
@@ -106,10 +139,9 @@ class _CartScreenState extends State<CartScreen> {
                             height: 50,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              print(
-                                  'Lỗi tải hình: $error, URL: ${item['image']}');
+                              print('Lỗi tải hình: $error, URL: ${item['image']}');
                               return Image.network(
-                                'https://via.placeholder.com/150', // Hình ảnh mặc định
+                                'https://via.placeholder.com/150',
                                 width: 50,
                                 height: 50,
                                 fit: BoxFit.cover,
@@ -117,21 +149,18 @@ class _CartScreenState extends State<CartScreen> {
                             },
                           ),
                           title: Text(item['name'] ?? 'Sản phẩm'),
-                          subtitle:
-                              Text("\$${item['price'].toStringAsFixed(2)}"),
+                          subtitle: Text("\$${item['price'].toStringAsFixed(2)}"),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 icon: Icon(Icons.remove),
-                                onPressed: () =>
-                                    updateQuantity(index, item['quantity'] - 1),
+                                onPressed: () => updateQuantity(index, item['quantity'] - 1),
                               ),
                               Text("${item['quantity']}"),
                               IconButton(
                                 icon: Icon(Icons.add),
-                                onPressed: () =>
-                                    updateQuantity(index, item['quantity'] + 1),
+                                onPressed: () => updateQuantity(index, item['quantity'] + 1),
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.red),
@@ -142,9 +171,7 @@ class _CartScreenState extends State<CartScreen> {
                                     removeItem(id);
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Không thể xóa: ID không hợp lệ')),
+                                      SnackBar(content: Text('Không thể xóa: ID không hợp lệ')),
                                     );
                                   }
                                 },
@@ -162,8 +189,7 @@ class _CartScreenState extends State<CartScreen> {
                     children: [
                       Text(
                         "Tổng tiền: \$${subtotal.toStringAsFixed(2)}",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 10),
                     ],

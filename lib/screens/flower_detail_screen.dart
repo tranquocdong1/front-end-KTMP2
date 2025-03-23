@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:front_end_ktpm2/services/flowers_service.dart';
+import 'package:front_end_ktpm2/services/cart_service.dart'; // Thêm import CartService
 
 class ProductDetailScreen extends StatefulWidget {
   final String productId;
-  
+
   ProductDetailScreen({required this.productId});
-  
+
   @override
   _ProductDetailScreenState createState() => _ProductDetailScreenState();
 }
@@ -30,7 +31,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       });
 
       final productDetails = await FlowersService.getProductDetail(widget.productId);
-      
+
       setState(() {
         product = productDetails;
         isLoading = false;
@@ -60,20 +61,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> _addToCart() async {
     try {
-      final response = await FlowersService.addToCart(product['_id'], quantity);
-      if (response['success'] == true) {
+      // Sử dụng CartService thay vì FlowersService
+      final response = await CartService.addToCart(widget.productId, quantity);
+      
+      // Kiểm tra phản hồi từ CartService
+      if (response['success'] != false) { // CartService không trả về 'success' nên kiểm tra khác
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Đã thêm vào giỏ hàng')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể thêm vào giỏ hàng')),
+          SnackBar(content: Text(response['message'] ?? 'Không thể thêm vào giỏ hàng')),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Lỗi: $e')),
       );
+      print('Lỗi khi thêm vào giỏ hàng: $e');
     }
   }
 
@@ -108,7 +113,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               print('Lỗi tải hình: $error');
                               return Center(
                                 child: Icon(
-                                  Icons.image_not_supported, 
+                                  Icons.image_not_supported,
                                   size: 120,
                                   color: Colors.grey,
                                 ),
@@ -119,7 +124,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               return Center(
                                 child: CircularProgressIndicator(
                                   value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded / 
+                                      ? loadingProgress.cumulativeBytesLoaded /
                                           loadingProgress.expectedTotalBytes!
                                       : null,
                                 ),
@@ -129,7 +134,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      
+
                       // Product Name
                       Text(
                         product['name'] ?? 'Sản phẩm',
@@ -139,7 +144,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      
+
                       // Product Price
                       Text(
                         '\$${(product['price'] ?? 0).toStringAsFixed(2)}',
@@ -150,7 +155,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      
+
                       // Product Description
                       Text(
                         'Mô tả:',
@@ -165,7 +170,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         style: TextStyle(fontSize: 16),
                       ),
                       SizedBox(height: 24),
-                      
+
                       // Quantity Selector
                       Row(
                         children: [
@@ -202,7 +207,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ],
                       ),
                       SizedBox(height: 24),
-                      
+
                       // Add to Cart Button
                       SizedBox(
                         width: double.infinity,

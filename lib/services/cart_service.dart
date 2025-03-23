@@ -109,4 +109,57 @@ class CartService {
       };
     }
   }
+
+  // Phương thức mới để cập nhật số lượng sản phẩm trong giỏ hàng
+  static Future<Map<String, dynamic>> updateCartQuantity(String? productId, int quantity) async {
+    try {
+      if (productId == null || productId.isEmpty) {
+        print('Lỗi: productId bị null hoặc rỗng');
+        return {
+          'message': 'ID sản phẩm không hợp lệ',
+          'success': false,
+          'items': [],
+          'subtotal': "0.00"
+        };
+      }
+      
+      if (quantity < 1) {
+        print('Lỗi: Số lượng phải lớn hơn 0');
+        return {
+          'message': 'Số lượng không hợp lệ',
+          'success': false,
+          'items': [],
+          'subtotal': "0.00"
+        };
+      }
+      
+      final headers = await _getHeaders();
+      print('Đang cập nhật số lượng sản phẩm với ID: $productId, số lượng: $quantity');
+      
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/api/update-cart-quantity'),
+            headers: headers,
+            body: jsonEncode({'productId': productId, 'quantity': quantity}),
+          )
+          .timeout(Duration(seconds: timeoutSeconds));
+          
+      print('Phản hồi từ server khi cập nhật số lượng: ${response.statusCode} - ${response.body}');
+      
+      final result = _handleResponse(response);
+      if (!result.containsKey('items')) {
+        print('Server không trả về items, lấy giỏ hàng lại');
+        return await getCart();
+      }
+      return result;
+    } catch (e) {
+      print('Lỗi khi cập nhật số lượng sản phẩm trong giỏ hàng: $e');
+      return {
+        'message': 'Lỗi khi cập nhật số lượng: $e',
+        'success': false,
+        'items': [],
+        'subtotal': "0.00"
+      };
+    }
+  }
 }
