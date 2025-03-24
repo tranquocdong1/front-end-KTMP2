@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front_end_ktpm2/screens/home_screen.dart';
 import 'package:front_end_ktpm2/services/cart_service.dart';
+import '../services/order_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   @override
@@ -70,68 +71,69 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   double get total => subtotal + shipping;
 
   Future<void> placeOrder() async {
-    // Validate form
-    if (_nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _addressController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Vui lòng điền đầy đủ thông tin')),
-      );
-      return;
-    }
+  // Validate form
+  if (_nameController.text.isEmpty ||
+      _emailController.text.isEmpty ||
+      _phoneController.text.isEmpty ||
+      _addressController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Vui lòng điền đầy đủ thông tin')),
+    );
+    return;
+  }
 
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Center(child: CircularProgressIndicator()),
+  // Show loading indicator
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => Center(child: CircularProgressIndicator()),
+  );
+
+  try {
+    final response = await OrderService.placeOrder(
+      name: _nameController.text,
+      email: _emailController.text,
+      phone: _phoneController.text,
+      address: _addressController.text,
+      city: _cityController.text,
+      zip: _zipController.text,
+      paymentMethod: _selectedPayment,
     );
 
-    try {
-      // Here you would call your order service to place the order
-      // For example: await OrderService.placeOrder(orderData);
+    // Close loading dialog
+    Navigator.pop(context);
 
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
+    // Show success and navigate to confirmation
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Đặt hàng thành công'),
+        content: Text(response['message'] ?? 'Đơn hàng của bạn đã được xác nhận.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+                (route) => false,
+              );
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    // Close loading dialog
+    Navigator.pop(context);
 
-      // Close loading dialog
-      Navigator.pop(context);
-
-      // Show success and navigate to confirmation
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Đặt hàng thành công'),
-          content: Text(
-              'Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được xác nhận.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen()),
-                  (route) => false,
-                );
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      // Close loading dialog
-      Navigator.pop(context);
-
-      // Show error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã xảy ra lỗi: $e')),
-      );
-    }
+    // Show error
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Đã xảy ra lỗi: $e')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

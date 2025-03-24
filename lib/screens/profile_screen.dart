@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front_end_ktpm2/services/auth_service.dart'; // Import AuthService
 
 class ProfileScreen extends StatelessWidget {
   final String userEmail;
@@ -6,7 +7,11 @@ class ProfileScreen extends StatelessWidget {
   // Constructor to receive the user email
   const ProfileScreen({Key? key, required this.userEmail}) : super(key: key);
 
-  void _logout(BuildContext context) {
+  Future<void> _logout(BuildContext context) async {
+    // Gọi hàm logout từ AuthService để xóa userId
+    await AuthService().logout();
+
+    // Chuyển hướng về màn hình đăng nhập
     Navigator.pushReplacementNamed(context, "/login");
   }
 
@@ -57,7 +62,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () => _logout(context),
+              onPressed: () => _logout(context), // Gọi hàm _logout
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink[400],
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),

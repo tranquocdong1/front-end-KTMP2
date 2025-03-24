@@ -24,8 +24,13 @@ class AuthService {
     await prefs.remove('userId');
   }
 
-  Future<Map<String, dynamic>> registerUser(String name, String email,
-      String password, String confirmPassword, int age) async {
+  Future<Map<String, dynamic>> registerUser(
+    String name,
+    String email,
+    String password,
+    String confirmPassword,
+    int age,
+  ) async {
     try {
       final response = await _dio.post(
         "/signup",
@@ -60,5 +65,11 @@ class AuthService {
       print("Lỗi đăng nhập: $e");
       return {"success": false, "message": "Lỗi đăng nhập."};
     }
+  }
+
+  // Trong AuthService
+  Future<void> logout() async {
+    await clearUserId(); // Xóa userId
+    print('Đã đăng xuất và xóa userId');
   }
 }

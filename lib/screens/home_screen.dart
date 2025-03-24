@@ -8,6 +8,7 @@ import 'package:front_end_ktpm2/screens/checkout_screen.dart';
 import 'package:front_end_ktpm2/screens/contact_screen.dart';
 import 'package:front_end_ktpm2/screens/flowers_screen.dart';
 import 'package:front_end_ktpm2/screens/profile_screen.dart';
+import 'package:front_end_ktpm2/screens/order_history_screen.dart'; // Import OrderHistoryScreen
 
 class HomeScreen extends StatefulWidget {
   final String userEmail;
@@ -35,7 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
       CheckoutScreen(),
       BlogScreen(),
       ContactScreen(),
-      ProfileScreen(userEmail: widget.userEmail), // Pass email to ProfileScreen
+      OrderHistoryScreen(), // Thêm OrderHistoryScreen
+      ProfileScreen(userEmail: widget.userEmail), // ProfileScreen giữ nguyên
     ];
   }
 
@@ -80,8 +82,12 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Liên hệ',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.history), // Icon cho Order History
+            label: 'Lịch sử đơn', // Label cho Order History
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Hồ sơ', // Profile tab
+            label: 'Hồ sơ',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -98,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
 class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Rest of your HomeContent implementation remains unchanged
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -111,9 +116,6 @@ class HomeContent extends StatelessWidget {
         backgroundColor: Colors.pink[50],
         elevation: 0,
       ),
-      // Rest of your code remains the same...
-
-      // Your existing implementation here...
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
