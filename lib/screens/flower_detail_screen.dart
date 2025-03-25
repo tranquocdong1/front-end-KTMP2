@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:front_end_ktpm2/services/flowers_service.dart';
-import 'package:front_end_ktpm2/services/cart_service.dart'; // Thêm import CartService
+import 'package:front_end_ktpm2/services/cart_service.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -15,7 +15,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Map<String, dynamic> product = {};
   bool isLoading = true;
   String errorMessage = '';
-  int quantity = 1;
 
   @override
   void initState() {
@@ -45,33 +44,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  void _increaseQuantity() {
-    setState(() {
-      quantity++;
-    });
-  }
-
-  void _decreaseQuantity() {
-    if (quantity > 1) {
-      setState(() {
-        quantity--;
-      });
-    }
-  }
-
   Future<void> _addToCart() async {
     try {
-      // Sử dụng CartService thay vì FlowersService
-      final response = await CartService.addToCart(widget.productId, quantity);
-      
-      // Kiểm tra phản hồi từ CartService
-      if (response['success'] != false) { // CartService không trả về 'success' nên kiểm tra khác
+      final response = await CartService.addToCart(widget.productId, 1); // Giữ số lượng mặc định là 1
+      if (response['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Đã thêm vào giỏ hàng')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Không thể thêm vào giỏ hàng')),
+          SnackBar(content: Text('Không thể thêm vào giỏ hàng')),
         );
       }
     } catch (e) {
@@ -97,7 +79,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Product Image - Fixed sizing and display
+                      // Hình ảnh sản phẩm
                       AspectRatio(
                         aspectRatio: 16 / 9,
                         child: Container(
@@ -135,7 +117,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       SizedBox(height: 16),
 
-                      // Product Name
+                      // Tên sản phẩm
                       Text(
                         product['name'] ?? 'Sản phẩm',
                         style: TextStyle(
@@ -145,7 +127,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       SizedBox(height: 8),
 
-                      // Product Price
+                      // Giá sản phẩm
                       Text(
                         '\$${(product['price'] ?? 0).toStringAsFixed(2)}',
                         style: TextStyle(
@@ -156,7 +138,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       SizedBox(height: 16),
 
-                      // Product Description
+                      // Mô tả sản phẩm
                       Text(
                         'Mô tả:',
                         style: TextStyle(
@@ -171,49 +153,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       SizedBox(height: 24),
 
-                      // Quantity Selector
-                      Row(
-                        children: [
-                          Text(
-                            'Số lượng:',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.remove),
-                                  onPressed: _decreaseQuantity,
-                                ),
-                                Text(
-                                  '$quantity',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.add),
-                                  onPressed: _increaseQuantity,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 24),
-
-                      // Add to Cart Button
+                      // Nút thêm vào giỏ hàng
                       SizedBox(
                         width: double.infinity,
-                        height: 50,
                         child: ElevatedButton(
                           onPressed: _addToCart,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(double.infinity, 50),
+                          ),
                           child: Text(
                             'Thêm vào giỏ hàng',
                             style: TextStyle(fontSize: 18),
