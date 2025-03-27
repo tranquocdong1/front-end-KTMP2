@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class FlowersService {
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://back-end-ktpm2.onrender.com';
   static const int timeoutSeconds = 10;
 
   // Xử lý phản hồi API

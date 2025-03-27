@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: "http://localhost:3000"));
+  final Dio _dio = Dio(BaseOptions(baseUrl: "https://back-end-ktpm2.onrender.com"));
 
   // Lưu userId vào SharedPreferences
   Future<void> _saveUserId(String userId) async {

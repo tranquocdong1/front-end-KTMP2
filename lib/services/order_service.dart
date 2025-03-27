@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:front_end_ktpm2/services/auth_service.dart'; // Import AuthService
 
 class OrderService {
-  static final Dio _dio = Dio(BaseOptions(baseUrl: "http://localhost:3000")); // Thay bằng URL server thực tế
+  static final Dio _dio = Dio(BaseOptions(baseUrl: "https://back-end-ktpm2.onrender.com")); // Thay bằng URL server thực tế
 
   // Đặt hàng
   static Future<Map<String, dynamic>> placeOrder({

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:front_end_ktpm2/services/auth_service.dart';
 
 class CartService {
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://back-end-ktpm2.onrender.com';
   static const int timeoutSeconds = 10;
 
   // Lấy header với userId

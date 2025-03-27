@@ -13,7 +13,7 @@ class _BlogScreenState extends State<BlogScreen> {
   String errorMessage = '';
   
   // Base URL for images
-  final String baseUrl = "http://localhost:3000/images/";
+  final String baseUrl = "https://back-end-ktpm2.onrender.com/images/";
 
   @override
   void initState() {

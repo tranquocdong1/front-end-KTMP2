@@ -20,7 +20,7 @@ class AboutScreen extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
               child: Image.network(
-                'http://localhost:3000/images/about.jpg',
+                'https://back-end-ktpm2.onrender.com/images/about.jpg',
                 height: 220,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
